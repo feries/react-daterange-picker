@@ -100,25 +100,37 @@ const DateRangePicker = createClass({
     const nextDateStates = this.getDateStates(nextProps);
     const nextEnabledRange = this.getEnabledRange(nextProps);
 
-    const updatedState = {
-      selectedStartDate: null,
-      hideSelection: false,
-      dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
-      enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
-    };
+    if (nextProps.reset) {
+      this.setState({
+        value: null,
+        selectedStartDate: null,
+        highlightedRange: null,
+        highlightedDate: null,
+        hideSelection: false,
+        dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
+        enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
+      });
+    } else {
+      const updatedState = {
+        selectedStartDate: null,
+        hideSelection: false,
+        dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
+        enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
+      };
 
-    if (hasUpdatedValue(this.props, nextProps)) {
-      const isNewValueVisible = this.isStartOrEndVisible(nextProps);
+      if (hasUpdatedValue(this.props, nextProps)) {
+        const isNewValueVisible = this.isStartOrEndVisible(nextProps);
 
-      if (!isNewValueVisible) {
-        const yearMonth = getYearMonthProps(nextProps);
+        if (!isNewValueVisible) {
+          const yearMonth = getYearMonthProps(nextProps);
 
-        updatedState.year = yearMonth.year;
-        updatedState.month = yearMonth.month;
+          updatedState.year = yearMonth.year;
+          updatedState.month = yearMonth.month;
+        }
       }
-    }
 
-    this.setState(updatedState);
+      this.setState(updatedState);
+    }
   },
 
   getInitialState() {
@@ -457,6 +469,7 @@ const DateRangePicker = createClass({
       numberOfCalendars,
       selectionType,
       value,
+      reset,
     } = this.props;
 
     let {
@@ -511,6 +524,7 @@ const DateRangePicker = createClass({
       key,
       selectionType,
       value,
+      reset,
       maxIndex: numberOfCalendars - 1,
       firstOfMonth: monthDate,
       onMonthChange: this.changeMonth,
