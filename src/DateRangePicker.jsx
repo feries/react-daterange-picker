@@ -1,28 +1,28 @@
-import React from 'react';
+import React from "react";
 
-import PropTypes from 'prop-types';
-import createClass from 'create-react-class';
-import moment from './moment-range';
-import Immutable from 'immutable';
-import calendar from 'calendar';
+import PropTypes from "prop-types";
+import createClass from "create-react-class";
+import moment from "./moment-range";
+import Immutable from "immutable";
+import calendar from "calendar";
 
-import BemMixin from './utils/BemMixin';
-import CustomPropTypes from './utils/CustomPropTypes';
-import Legend from './Legend';
+import BemMixin from "./utils/BemMixin";
+import CustomPropTypes from "./utils/CustomPropTypes";
+import Legend from "./Legend";
 
-import CalendarMonth from './calendar/CalendarMonth';
-import CalendarDate from './calendar/CalendarDate';
+import CalendarMonth from "./calendar/CalendarMonth";
+import CalendarDate from "./calendar/CalendarDate";
 
-import PaginationArrow from './PaginationArrow';
+import PaginationArrow from "./PaginationArrow";
 
-import isMomentRange from './utils/isMomentRange';
-import hasUpdatedValue from './utils/hasUpdatedValue';
-import { getYearMonth, getYearMonthProps } from './utils/getYearMonth';
+import isMomentRange from "./utils/isMomentRange";
+import hasUpdatedValue from "./utils/hasUpdatedValue";
+import { getYearMonth, getYearMonthProps } from "./utils/getYearMonth";
 
-import PureRenderMixin from 'react-addons-pure-render-mixin';
+import PureRenderMixin from "react-addons-pure-render-mixin";
 
-const absoluteMinimum = moment(new Date(-8640000000000000 / 2)).startOf('day');
-const absoluteMaximum = moment(new Date(8640000000000000 / 2)).startOf('day');
+const absoluteMinimum = moment(new Date(-8640000000000000 / 2)).startOf("day");
+const absoluteMaximum = moment(new Date(8640000000000000 / 2)).startOf("day");
 
 function noop() {}
 
@@ -54,44 +54,48 @@ const DateRangePicker = createClass({
     onSelectStart: PropTypes.func, // triggered when the first date in a range is selected
     paginationArrowComponent: PropTypes.func,
     selectedLabel: PropTypes.string,
-    selectionType: PropTypes.oneOf(['single', 'range']),
+    selectionType: PropTypes.oneOf(["single", "range"]),
     singleDateRange: PropTypes.bool,
     showLegend: PropTypes.bool,
     stateDefinitions: PropTypes.object,
-    value: CustomPropTypes.momentOrMomentRange,
+    value: CustomPropTypes.momentOrMomentRange
   },
 
   getDefaultProps() {
     let date = new Date();
-    let initialDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    let initialDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
 
     return {
       bemNamespace: null,
-      bemBlock: 'DateRangePicker',
-      className: '',
+      bemBlock: "DateRangePicker",
+      className: "",
       numberOfCalendars: 1,
       firstOfWeek: 0,
       disableNavigation: false,
-      nextLabel: '',
-      previousLabel: '',
+      nextLabel: "",
+      previousLabel: "",
       initialDate: initialDate,
       initialFromValue: true,
       locale: moment().locale(),
-      selectionType: 'range',
+      selectionType: "range",
       singleDateRange: false,
       stateDefinitions: {
-        '__default': {
+        __default: {
           color: null,
           selectable: true,
-          label: null,
-        },
+          label: null
+        }
       },
       selectedLabel: "Your selected dates",
-      defaultState: '__default',
+      defaultState: "__default",
       dateStates: [],
       showLegend: false,
       onSelect: noop,
-      paginationArrowComponent: PaginationArrow,
+      paginationArrowComponent: PaginationArrow
     };
   },
 
@@ -99,28 +103,58 @@ const DateRangePicker = createClass({
     const nextDateStates = this.getDateStates(nextProps);
     const nextEnabledRange = this.getEnabledRange(nextProps);
 
-    const updatedState = {
-      selectedStartDate: null,
-      hideSelection: false,
-      dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
-      enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
-    };
+    if (nextProps.reset) {
+      this.setState({
+        value: null,
+        selectedStartDate: null,
+        highlightedRange: null,
+        highlightedDate: null,
+        hideSelection: false,
+        dateStates:
+          this.state.dateStates &&
+          Immutable.is(this.state.dateStates, nextDateStates)
+            ? this.state.dateStates
+            : nextDateStates,
+        enabledRange:
+          this.state.enabledRange &&
+          this.state.enabledRange.isSame(nextEnabledRange)
+            ? this.state.enabledRange
+            : nextEnabledRange
+      });
+    } else {
+      const updatedState = {
+        selectedStartDate: null,
+        hideSelection: false,
+        dateStates:
+          this.state.dateStates &&
+          Immutable.is(this.state.dateStates, nextDateStates)
+            ? this.state.dateStates
+            : nextDateStates,
+        enabledRange:
+          this.state.enabledRange &&
+          this.state.enabledRange.isSame(nextEnabledRange)
+            ? this.state.enabledRange
+            : nextEnabledRange
+      };
 
-    if (hasUpdatedValue(this.props, nextProps)) {
-      if (!nextProps.value || !this.isStartOrEndVisible(nextProps)) {
-        const yearMonth = getYearMonthProps(nextProps);
+      if (hasUpdatedValue(this.props, nextProps)) {
+        const isNewValueVisible = this.isStartOrEndVisible(nextProps);
 
-        updatedState.year = yearMonth.year;
-        updatedState.month = yearMonth.month;
+        if (!isNewValueVisible) {
+          const yearMonth = getYearMonthProps(nextProps);
+
+          updatedState.year = yearMonth.year;
+          updatedState.month = yearMonth.month;
+        }
       }
-    }
 
-    this.setState(updatedState);
+      this.setState(updatedState);
+    }
   },
 
   getInitialState() {
     let now = new Date();
-    let {initialYear, initialMonth, initialFromValue, value} = this.props;
+    let { initialYear, initialMonth, initialFromValue, value } = this.props;
     let year = now.getFullYear();
     let month = now.getMonth();
 
@@ -143,38 +177,39 @@ const DateRangePicker = createClass({
       highlightRange: null,
       hideSelection: false,
       enabledRange: this.getEnabledRange(this.props),
-      dateStates: this.getDateStates(this.props),
+      dateStates: this.getDateStates(this.props)
     };
   },
 
   getEnabledRange(props) {
-    let min = props.minimumDate ? moment(props.minimumDate).startOf('day') : absoluteMinimum;
-    let max = props.maximumDate ? moment(props.maximumDate).startOf('day') : absoluteMaximum;
+    let min = props.minimumDate
+      ? moment(props.minimumDate).startOf("day")
+      : absoluteMinimum;
+    let max = props.maximumDate
+      ? moment(props.maximumDate).startOf("day")
+      : absoluteMaximum;
 
     return moment.range(min, max);
   },
 
   getDateStates(props) {
-    let {dateStates, defaultState, stateDefinitions} = props;
+    let { dateStates, defaultState, stateDefinitions } = props;
     let actualStates = [];
     let minDate = absoluteMinimum;
     let maxDate = absoluteMaximum;
-    let dateCursor = moment(minDate).startOf('day');
+    let dateCursor = moment(minDate).startOf("day");
 
     let defs = Immutable.fromJS(stateDefinitions);
 
     dateStates.forEach(function(s) {
       let r = s.range;
-      let start = r.start.startOf('day');
-      let end = r.end.startOf('day');
+      let start = r.start.startOf("day");
+      let end = r.end.startOf("day");
 
-      if (!dateCursor.isSame(start, 'day')) {
+      if (!dateCursor.isSame(start, "day")) {
         actualStates.push({
           state: defaultState,
-          range: moment.range(
-            dateCursor,
-            start
-          ),
+          range: moment.range(dateCursor, start)
         });
       }
       actualStates.push(s);
@@ -183,10 +218,7 @@ const DateRangePicker = createClass({
 
     actualStates.push({
       state: defaultState,
-      range: moment.range(
-        dateCursor,
-        maxDate
-      ),
+      range: moment.range(dateCursor, maxDate)
     });
 
     // sanitize date states
@@ -195,8 +227,8 @@ const DateRangePicker = createClass({
       return Immutable.Map({
         range: s.range,
         state: s.state,
-        selectable: def.get('selectable', true),
-        color: def.get('color'),
+        selectable: def.get("selectable", true),
+        color: def.get("color")
       });
     });
   },
@@ -206,15 +238,15 @@ const DateRangePicker = createClass({
   },
 
   isDateSelectable(date) {
-    return this.dateRangesForDate(date).some(r => r.get('selectable'));
+    return this.dateRangesForDate(date).some(r => r.get("selectable"));
   },
 
   nonSelectableStateRanges() {
-    return this.state.dateStates.filter(d => !d.get('selectable'));
+    return this.state.dateStates.filter(d => !d.get("selectable"));
   },
 
   dateRangesForDate(date) {
-    return this.state.dateStates.filter(d => d.get('range').contains(date));
+    return this.state.dateStates.filter(d => d.get("range").contains(date));
   },
 
   sanitizeRange(range, forwards) {
@@ -222,7 +254,9 @@ const DateRangePicker = createClass({
      * with a non-selectable state. Using forwards to determine
      * which direction to work
      */
-    let blockedRanges = this.nonSelectableStateRanges().map(r => r.get('range'));
+    let blockedRanges = this.nonSelectableStateRanges().map(r =>
+      r.get("range")
+    );
     let intersect;
 
     if (forwards) {
@@ -230,7 +264,6 @@ const DateRangePicker = createClass({
       if (intersect) {
         return moment.range(range.start, intersect.start);
       }
-
     } else {
       intersect = blockedRanges.findLast(r => range.intersect(r));
 
@@ -253,33 +286,36 @@ const DateRangePicker = createClass({
   highlightRange(range) {
     this.setState({
       highlightedRange: range,
-      highlightedDate: null,
+      highlightedDate: null
     });
-    if (typeof this.props.onHighlightRange === 'function') {
+    if (typeof this.props.onHighlightRange === "function") {
       this.props.onHighlightRange(range, this.statesForRange(range));
     }
   },
 
   onUnHighlightDate() {
     this.setState({
-      highlightedDate: null,
+      highlightedDate: null
     });
   },
 
   onSelectDate(date) {
-    let {selectionType} = this.props;
-    let {selectedStartDate} = this.state;
+    let { selectionType } = this.props;
+    let { selectedStartDate } = this.state;
 
-    if (selectionType === 'range') {
+    if (selectionType === "range") {
       if (selectedStartDate) {
         this.completeRangeSelection();
-      } else if (date && !this.isDateDisabled(date) && this.isDateSelectable(date)) {
+      } else if (
+        date &&
+        !this.isDateDisabled(date) &&
+        this.isDateSelectable(date)
+      ) {
         this.startRangeSelection(date);
         if (this.props.singleDateRange) {
           this.highlightRange(moment.range(date, date));
         }
       }
-
     } else {
       if (!this.isDateDisabled(date) && this.isDateSelectable(date)) {
         this.completeSelection();
@@ -288,18 +324,20 @@ const DateRangePicker = createClass({
   },
 
   onHighlightDate(date) {
-    let {selectionType} = this.props;
-    let {selectedStartDate} = this.state;
+    let { selectionType } = this.props;
+    let { selectedStartDate } = this.state;
 
     let datePair;
     let range;
     let forwards;
 
-    if (selectionType === 'range') {
+    if (selectionType === "range") {
       if (selectedStartDate) {
-        datePair = Immutable.List.of(selectedStartDate, date).sortBy(d => d.unix());
+        datePair = Immutable.List.of(selectedStartDate, date).sortBy(d =>
+          d.unix()
+        );
         range = moment.range(datePair.get(0), datePair.get(1));
-        forwards = (range.start.unix() === selectedStartDate.unix());
+        forwards = range.start.unix() === selectedStartDate.unix();
         range = this.sanitizeRange(range, forwards);
         this.highlightRange(range);
       } else if (!this.isDateDisabled(date) && this.isDateSelectable(date)) {
@@ -315,22 +353,26 @@ const DateRangePicker = createClass({
   startRangeSelection(date) {
     this.setState({
       hideSelection: true,
-      selectedStartDate: date,
+      selectedStartDate: date
     });
-    if (typeof this.props.onSelectStart === 'function') {
+    if (typeof this.props.onSelectStart === "function") {
       this.props.onSelectStart(moment(date));
     }
   },
 
   statesForDate(date) {
-    return this.state.dateStates.filter(d => date.within(d.get('range'))).map(d => d.get('state'));
+    return this.state.dateStates
+      .filter(d => date.within(d.get("range")))
+      .map(d => d.get("state"));
   },
 
   statesForRange(range) {
-    if (range.start.isSame(range.end, 'day')) {
+    if (range.start.isSame(range.end, "day")) {
       return this.statesForDate(range.start);
     }
-    return this.state.dateStates.filter(d => d.get('range').intersect(range)).map(d => d.get('state'));
+    return this.state.dateStates
+      .filter(d => d.get("range").intersect(range))
+      .map(d => d.get("state"));
   },
 
   completeSelection() {
@@ -338,7 +380,7 @@ const DateRangePicker = createClass({
     if (highlightedDate) {
       this.setState({
         hideSelection: false,
-        highlightedDate: null,
+        highlightedDate: null
       });
       this.props.onSelect(highlightedDate, this.statesForDate(highlightedDate));
     }
@@ -347,12 +389,15 @@ const DateRangePicker = createClass({
   completeRangeSelection() {
     let range = this.state.highlightedRange;
 
-    if (range && (!range.start.isSame(range.end, 'day') || this.props.singleDateRange)) {
+    if (
+      range &&
+      (!range.start.isSame(range.end, "day") || this.props.singleDateRange)
+    ) {
       this.setState({
         selectedStartDate: null,
         highlightedRange: null,
         highlightedDate: null,
-        hideSelection: false,
+        hideSelection: false
       });
       this.props.onSelect(range, this.statesForRange(range));
     }
@@ -360,9 +405,9 @@ const DateRangePicker = createClass({
 
   highlightDate(date) {
     this.setState({
-      highlightedDate: date,
+      highlightedDate: date
     });
-    if (typeof this.props.onHighlightDate === 'function') {
+    if (typeof this.props.onHighlightDate === "function") {
       this.props.onHighlightDate(date, this.statesForDate(date));
     }
   },
@@ -374,15 +419,17 @@ const DateRangePicker = createClass({
   isStartOrEndVisible(props) {
     const { value, selectionType, numberOfCalendars } = props;
 
-    const isVisible = (date) => {
+    const isVisible = date => {
       const yearMonth = getYearMonth(date);
-      const isSameYear = (yearMonth.year === this.state.year);
-      const isMonthVisible = (yearMonth.month === this.state.month) || (numberOfCalendars === 2 && (yearMonth.month - 1 === this.state.month));
+      const isSameYear = yearMonth.year === this.state.year;
+      const isMonthVisible =
+        yearMonth.month === this.state.month ||
+        (numberOfCalendars === 2 && yearMonth.month - 1 === this.state.month);
 
       return isSameYear && isMonthVisible;
     };
 
-    if (selectionType === 'single') {
+    if (selectionType === "single") {
       return isVisible(value);
     }
 
@@ -390,7 +437,11 @@ const DateRangePicker = createClass({
   },
 
   canMoveBack() {
-    if (this.getMonthDate().subtract(1, 'days').isBefore(this.state.enabledRange.start)) {
+    if (
+      this.getMonthDate()
+        .subtract(1, "days")
+        .isBefore(this.state.enabledRange.start)
+    ) {
       return false;
     }
     return true;
@@ -401,13 +452,17 @@ const DateRangePicker = createClass({
 
     if (this.canMoveBack()) {
       monthDate = this.getMonthDate();
-      monthDate.subtract(1, 'months');
+      monthDate.subtract(1, "months");
       this.setState(getYearMonth(monthDate));
     }
   },
 
   canMoveForward() {
-    if (this.getMonthDate().add(this.props.numberOfCalendars, 'months').isAfter(this.state.enabledRange.end)) {
+    if (
+      this.getMonthDate()
+        .add(this.props.numberOfCalendars, "months")
+        .isAfter(this.state.enabledRange.end)
+    ) {
       return false;
     }
     return true;
@@ -418,36 +473,46 @@ const DateRangePicker = createClass({
 
     if (this.canMoveForward()) {
       monthDate = this.getMonthDate();
-      monthDate.add(1, 'months');
+      monthDate.add(1, "months");
       this.setState(getYearMonth(monthDate));
     }
   },
 
   changeYear(year) {
-    let {enabledRange, month} = this.state;
+    let { enabledRange, month } = this.state;
 
-    if (moment({years: year, months: month, date: 1}).unix() < enabledRange.start.unix()) {
+    if (
+      moment({ years: year, months: month, date: 1 }).unix() <
+      enabledRange.start.unix()
+    ) {
       month = enabledRange.start.month();
     }
 
-    if (moment({years: year, months: month + 1, date: 1}).unix() > enabledRange.end.unix()) {
+    if (
+      moment({ years: year, months: month + 1, date: 1 }).unix() >
+      enabledRange.end.unix()
+    ) {
       month = enabledRange.end.month();
     }
 
     this.setState({
       year: year,
-      month: month,
+      month: month
     });
   },
 
   changeMonth(date) {
     this.setState({
-      month: date,
+      month: date
     });
   },
 
   rangesOverlap(rangeA, rangeB) {
-    if (rangeA.overlaps(rangeB) || rangeA.contains(rangeB.start) || rangeA.contains(rangeB.end)) {
+    if (
+      rangeA.overlaps(rangeB) ||
+      rangeA.contains(rangeB.start) ||
+      rangeA.contains(rangeB.end)
+    ) {
       return true;
     }
     return false;
@@ -461,6 +526,7 @@ const DateRangePicker = createClass({
       numberOfCalendars,
       selectionType,
       value,
+      reset
     } = this.props;
 
     let {
@@ -468,33 +534,41 @@ const DateRangePicker = createClass({
       enabledRange,
       hideSelection,
       highlightedDate,
-      highlightedRange,
+      highlightedRange
     } = this.state;
     let monthDate = this.getMonthDate();
     let year = monthDate.year();
     let month = monthDate.month();
-    let key = `${ index}-${ year }-${ month }`;
+    let key = `${index}-${year}-${month}`;
     let props;
 
-    monthDate.add(index, 'months');
+    monthDate.add(index, "months");
 
     let cal = new calendar.Calendar(firstOfWeek);
-    let monthDates = Immutable.fromJS(cal.monthDates(monthDate.year(), monthDate.month()));
+    let monthDates = Immutable.fromJS(
+      cal.monthDates(monthDate.year(), monthDate.month())
+    );
     let monthStart = monthDates.first().first();
     let monthEnd = monthDates.last().last();
     let monthRange = moment.range(monthStart, monthEnd);
 
     if (moment.isMoment(value) && !monthRange.contains(value)) {
       value = null;
-    } else if (isMomentRange(value) && !(this.rangesOverlap(monthRange, value))) {
+    } else if (isMomentRange(value) && !this.rangesOverlap(monthRange, value)) {
       value = null;
     }
 
-    if (!moment.isMoment(highlightedDate) || !monthRange.contains(highlightedDate)) {
+    if (
+      !moment.isMoment(highlightedDate) ||
+      !monthRange.contains(highlightedDate)
+    ) {
       highlightedDate = null;
     }
 
-    if (!isMomentRange(highlightedRange) || !(this.rangesOverlap(monthRange, highlightedRange))) {
+    if (
+      !isMomentRange(highlightedRange) ||
+      !this.rangesOverlap(monthRange, highlightedRange)
+    ) {
       highlightedRange = null;
     }
 
@@ -511,6 +585,7 @@ const DateRangePicker = createClass({
       key,
       selectionType,
       value,
+      reset,
       maxIndex: numberOfCalendars - 1,
       firstOfMonth: monthDate,
       onMonthChange: this.changeMonth,
@@ -520,28 +595,55 @@ const DateRangePicker = createClass({
       onUnHighlightDate: this.onUnHighlightDate,
       dateRangesForDate: this.dateRangesForDate,
       dateComponent: CalendarDate,
-      locale: this.props.locale,
+      locale: this.props.locale
     };
 
     return <CalendarMonth {...props} />;
   },
 
   render: function() {
-    let {paginationArrowComponent: PaginationArrowComponent, className, numberOfCalendars, stateDefinitions, selectedLabel, showLegend, helpMessage} = this.props;
+    let {
+      paginationArrowComponent: PaginationArrowComponent,
+      className,
+      numberOfCalendars,
+      stateDefinitions,
+      selectedLabel,
+      showLegend,
+      helpMessage
+    } = this.props;
 
-    let calendars = Immutable.Range(0, numberOfCalendars).map(this.renderCalendar);
-    className = this.cx({element: null}) + ' ' + className;
+    let calendars = Immutable.Range(0, numberOfCalendars).map(
+      this.renderCalendar
+    );
+    className = this.cx({ element: null }) + " " + className;
 
     return (
       <div className={className.trim()}>
-        <PaginationArrowComponent direction="previous" onTrigger={this.moveBack} disabled={!this.canMoveBack()} />
+        <PaginationArrowComponent
+          direction="previous"
+          onTrigger={this.moveBack}
+          disabled={!this.canMoveBack()}
+        />
         {calendars.toJS()}
-        <PaginationArrowComponent direction="next" onTrigger={this.moveForward} disabled={!this.canMoveForward()} />
-        {helpMessage ? <span className={this.cx({element: 'HelpMessage'})}>{helpMessage}</span> : null}
-        {showLegend ? <Legend stateDefinitions={stateDefinitions} selectedLabel={selectedLabel} /> : null}
+        <PaginationArrowComponent
+          direction="next"
+          onTrigger={this.moveForward}
+          disabled={!this.canMoveForward()}
+        />
+        {helpMessage ? (
+          <span className={this.cx({ element: "HelpMessage" })}>
+            {helpMessage}
+          </span>
+        ) : null}
+        {showLegend ? (
+          <Legend
+            stateDefinitions={stateDefinitions}
+            selectedLabel={selectedLabel}
+          />
+        ) : null}
       </div>
     );
-  },
+  }
 });
 
 export default DateRangePicker;
