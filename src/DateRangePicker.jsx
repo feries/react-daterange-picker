@@ -95,10 +95,22 @@ const DateRangePicker = React.createClass({
     var nextDateStates = this.getDateStates(nextProps);
     var nextEnabledRange = this.getEnabledRange(nextProps);
 
-    this.setState({
-      dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
-      enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
-    });
+    if (nextProps.reset) {
+      this.setState({
+        value: null,
+        selectedStartDate: null,
+        highlightedRange: null,
+        highlightedDate: null,
+        hideSelection: false,
+        dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
+        enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
+      });
+    } else {
+      this.setState({
+        dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
+        enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
+      });
+    }
   },
 
   getInitialState() {
@@ -430,6 +442,7 @@ const DateRangePicker = React.createClass({
       numberOfCalendars,
       selectionType,
       value,
+      reset,
     } = this.props;
 
     let {
@@ -485,6 +498,7 @@ const DateRangePicker = React.createClass({
       key,
       selectionType,
       value,
+      reset,
       maxIndex: numberOfCalendars - 1,
       firstOfMonth: monthDate,
       onMonthChange: this.changeMonth,
