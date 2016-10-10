@@ -472,6 +472,17 @@ describe('The DateRangePicker component', function () {
             expect(this.renderedComponent.completeRangeSelection).toHaveBeenCalled();
           });
 
+          describe('if props.reset', function () {
+            it('it cancels the current selection', function () {
+              this.renderedComponent.setState({
+                reset: false,
+              });
+              expect(this.renderedComponent.state.selectedStartDate).toBe(null);
+              //expect(this.renderedComponent.state.highlightedRange).toBe(null);
+              //expect(this.renderedComponent.state.highlightedDate).toBe(null);
+              //expect(this.renderedComponent.state.hideSelection).toBe(false);
+            });
+          });
         });
 
         describe('if state.selectedStartDate is undefined', function () {
