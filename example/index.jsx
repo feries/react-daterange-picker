@@ -98,6 +98,12 @@ const Index = React.createClass({
     return {};
   },
 
+  resetSelection() {
+    this.setState({
+      reset: true,
+    });
+  },
+
   render() {
     const stateDefinitions = {
       available: {
@@ -154,6 +160,7 @@ const Index = React.createClass({
               value={moment.range(initialStart, initialEnd)}
               showLegend={true}
               />
+            <div onClick={this.resetSelection}>X</div>
             <CodeSnippet language="javascript">
               {processCodeSnippet(mainCodeSnippet)}
             </CodeSnippet>
