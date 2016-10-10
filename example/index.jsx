@@ -41,6 +41,12 @@ const DatePickerRange = React.createClass({
     this.setState({value, states});
   },
 
+  resetSelection() {
+    this.setState({
+      reset: true,
+    });
+  },
+
   render() {
     return (
       <div>
@@ -54,6 +60,7 @@ const DatePickerRange = React.createClass({
             value={this.state.value ? this.state.value.end.format('LL') : ""}
             readOnly={true}
             placeholder="End date" />
+          <button onClick={this.resetSelection}>Reset</button>
         </div>
       </div>
     );
@@ -96,12 +103,6 @@ var mainCodeSnippet = fs.readFileSync(__dirname + '/code-snippets/main.jsx', 'ut
 const Index = React.createClass({
   getDefaultProps() {
     return {};
-  },
-
-  resetSelection() {
-    this.setState({
-      reset: true,
-    });
   },
 
   render() {
@@ -160,7 +161,6 @@ const Index = React.createClass({
               value={moment.range(initialStart, initialEnd)}
               showLegend={true}
               />
-            <div onClick={this.resetSelection}>X</div>
             <CodeSnippet language="javascript">
               {processCodeSnippet(mainCodeSnippet)}
             </CodeSnippet>
