@@ -82,15 +82,14 @@ var CalendarMonth = _react2.default.createClass({
     }
   },
   renderDay: function renderDay(date, i) {
-    var _props = this.props;
-    var CalendarDate = _props.dateComponent;
-    var value = _props.value;
-    var highlightedDate = _props.highlightedDate;
-    var highlightedRange = _props.highlightedRange;
-    var hideSelection = _props.hideSelection;
-    var enabledRange = _props.enabledRange;
-
-    var props = _objectWithoutProperties(_props, ['dateComponent', 'value', 'highlightedDate', 'highlightedRange', 'hideSelection', 'enabledRange']);
+    var _props = this.props,
+        CalendarDate = _props.dateComponent,
+        value = _props.value,
+        highlightedDate = _props.highlightedDate,
+        highlightedRange = _props.highlightedRange,
+        hideSelection = _props.hideSelection,
+        enabledRange = _props.enabledRange,
+        props = _objectWithoutProperties(_props, ['dateComponent', 'value', 'highlightedDate', 'highlightedRange', 'hideSelection', 'enabledRange']);
 
     var d = (0, _moment2.default)(date).locale(this.props.locale);
 
@@ -198,9 +197,9 @@ var CalendarMonth = _react2.default.createClass({
     this.props.onMonthChange(parseInt(event.target.value, 10));
   },
   renderMonthChoice: function renderMonthChoice(month, i) {
-    var _props2 = this.props;
-    var firstOfMonth = _props2.firstOfMonth;
-    var enabledRange = _props2.enabledRange;
+    var _props2 = this.props,
+        firstOfMonth = _props2.firstOfMonth,
+        enabledRange = _props2.enabledRange;
 
     var disabled = false;
     var year = firstOfMonth.year();
@@ -246,9 +245,9 @@ var CalendarMonth = _react2.default.createClass({
     );
   },
   render: function render() {
-    var _props3 = this.props;
-    var firstOfWeek = _props3.firstOfWeek;
-    var firstOfMonth = _props3.firstOfMonth;
+    var _props3 = this.props,
+        firstOfWeek = _props3.firstOfWeek,
+        firstOfMonth = _props3.firstOfMonth;
 
 
     var cal = new _calendar2.default.Calendar(firstOfWeek);

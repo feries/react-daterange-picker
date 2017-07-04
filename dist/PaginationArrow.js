@@ -41,12 +41,11 @@ var PaginationArrow = _react2.default.createClass({
     };
   },
   render: function render() {
-    var _props = this.props;
-    var disabled = _props.disabled;
-    var direction = _props.direction;
-    var onTrigger = _props.onTrigger;
-
-    var props = _objectWithoutProperties(_props, ['disabled', 'direction', 'onTrigger']);
+    var _props = this.props,
+        disabled = _props.disabled,
+        direction = _props.direction,
+        onTrigger = _props.onTrigger,
+        props = _objectWithoutProperties(_props, ['disabled', 'direction', 'onTrigger']);
 
     var modifiers = _defineProperty({}, direction, true);
     var states = { disabled: disabled };

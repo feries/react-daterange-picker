@@ -4,16 +4,16 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = bemCx;
 function bemCx() {
-  var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-  var block = options.block;
-  var element = options.element;
-  var namespace = options.namespace;
-  var modifiers = options.modifiers;
-  var states = options.states;
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var block = options.block,
+      element = options.element,
+      namespace = options.namespace,
+      modifiers = options.modifiers,
+      states = options.states;
 
   var bemClasses = [];
   var baseClassName = void 0;

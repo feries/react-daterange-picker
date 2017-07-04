@@ -55,7 +55,7 @@ var BemMixin = {
     return null;
   },
   cx: function cx() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     var opts = {
       namespace: this.getBemNamespace(),

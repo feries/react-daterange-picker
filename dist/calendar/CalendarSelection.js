@@ -31,9 +31,9 @@ var CalendarSelection = _react2.default.createClass({
   },
 
   render: function render() {
-    var _props = this.props;
-    var modifier = _props.modifier;
-    var pending = _props.pending;
+    var _props = this.props,
+        modifier = _props.modifier,
+        pending = _props.pending;
 
     var modifiers = _defineProperty({}, modifier, true);
     var states = {

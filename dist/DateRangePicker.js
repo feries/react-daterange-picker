@@ -74,6 +74,7 @@ var DateRangePicker = _react2.default.createClass({
     defaultState: _react2.default.PropTypes.string,
     disableNavigation: _react2.default.PropTypes.bool,
     firstOfWeek: _react2.default.PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
+    fullDayStates: _react2.default.PropTypes.bool,
     helpMessage: _react2.default.PropTypes.string,
     initialDate: _react2.default.PropTypes.instanceOf(Date),
     initialFromValue: _react2.default.PropTypes.bool,
@@ -107,6 +108,7 @@ var DateRangePicker = _react2.default.createClass({
       className: '',
       numberOfCalendars: 1,
       firstOfWeek: 0,
+      fullDayStates: false,
       disableNavigation: false,
       nextLabel: '',
       previousLabel: '',
@@ -153,12 +155,12 @@ var DateRangePicker = _react2.default.createClass({
   },
   getInitialState: function getInitialState() {
     var now = new Date();
-    var _props = this.props;
-    var initialYear = _props.initialYear;
-    var initialMonth = _props.initialMonth;
-    var initialFromValue = _props.initialFromValue;
-    var selectionType = _props.selectionType;
-    var value = _props.value;
+    var _props = this.props,
+        initialYear = _props.initialYear,
+        initialMonth = _props.initialMonth,
+        initialFromValue = _props.initialFromValue,
+        selectionType = _props.selectionType,
+        value = _props.value;
 
     var year = now.getFullYear();
     var month = now.getMonth();
@@ -197,14 +199,20 @@ var DateRangePicker = _react2.default.createClass({
     return _moment2.default.range(min, max);
   },
   getDateStates: function getDateStates(props) {
-    var dateStates = props.dateStates;
-    var defaultState = props.defaultState;
-    var stateDefinitions = props.stateDefinitions;
+    var dateStates = props.dateStates,
+        defaultState = props.defaultState,
+        stateDefinitions = props.stateDefinitions;
 
     var actualStates = [];
     var minDate = absoluteMinimum;
     var maxDate = absoluteMaximum;
     var dateCursor = (0, _moment2.default)(minDate).startOf('day');
+
+    // If states should always include the full day at the edges, we need to
+    // use different boundaries for the "default state" ranges we generate
+    // here. Otherwise the rendering code in CalenderDate cannot know if the
+    // day is at a boundary or not.
+    var shiftDays = this.props.fullDayStates ? 1 : 0;
 
     var defs = _immutable2.default.fromJS(stateDefinitions);
 
@@ -216,7 +224,7 @@ var DateRangePicker = _react2.default.createClass({
       if (!dateCursor.isSame(start, 'day')) {
         actualStates.push({
           state: defaultState,
-          range: _moment2.default.range(dateCursor, start)
+          range: _moment2.default.range((0, _moment2.default)(dateCursor).add(shiftDays, 'day'), (0, _moment2.default)(start).subtract(shiftDays, 'day'))
         });
       }
       actualStates.push(s);
@@ -225,7 +233,7 @@ var DateRangePicker = _react2.default.createClass({
 
     actualStates.push({
       state: defaultState,
-      range: _moment2.default.range(dateCursor, maxDate)
+      range: _moment2.default.range((0, _moment2.default)(dateCursor).add(shiftDays, 'day'), maxDate)
     });
 
     // sanitize date states
@@ -265,6 +273,13 @@ var DateRangePicker = _react2.default.createClass({
     var blockedRanges = this.nonSelectableStateRanges().map(function (r) {
       return r.get('range');
     });
+    if (this.props.fullDayStates)
+      // range.intersect() ignores when one range ends on the same day
+      // the other begins; for the block to work, we have to extend the
+      // ranges by one day.
+      blockedRanges = blockedRanges.map(function (r) {
+        r = r.clone();r.start.subtract(1, 'day');r.end.add(1, 'day');return r;
+      });
     var intersect = void 0;
 
     if (forwards) {
@@ -452,9 +467,9 @@ var DateRangePicker = _react2.default.createClass({
     }
   },
   changeYear: function changeYear(year) {
-    var _state = this.state;
-    var enabledRange = _state.enabledRange;
-    var month = _state.month;
+    var _state = this.state,
+        enabledRange = _state.enabledRange,
+        month = _state.month;
 
 
     if ((0, _moment2.default)({ years: year, months: month, date: 1 }).unix() < enabledRange.start.unix()) {
@@ -476,20 +491,21 @@ var DateRangePicker = _react2.default.createClass({
     });
   },
   renderCalendar: function renderCalendar(index) {
-    var _props2 = this.props;
-    var bemBlock = _props2.bemBlock;
-    var bemNamespace = _props2.bemNamespace;
-    var firstOfWeek = _props2.firstOfWeek;
-    var numberOfCalendars = _props2.numberOfCalendars;
-    var selectionType = _props2.selectionType;
-    var value = _props2.value;
-    var reset = _props2.reset;
-    var _state2 = this.state;
-    var dateStates = _state2.dateStates;
-    var enabledRange = _state2.enabledRange;
-    var hideSelection = _state2.hideSelection;
-    var highlightedDate = _state2.highlightedDate;
-    var highlightedRange = _state2.highlightedRange;
+    var _props2 = this.props,
+        bemBlock = _props2.bemBlock,
+        bemNamespace = _props2.bemNamespace,
+        firstOfWeek = _props2.firstOfWeek,
+        fullDayStates = _props2.fullDayStates,
+        numberOfCalendars = _props2.numberOfCalendars,
+        selectionType = _props2.selectionType,
+        value = _props2.value,
+        reset = _props2.reset;
+    var _state2 = this.state,
+        dateStates = _state2.dateStates,
+        enabledRange = _state2.enabledRange,
+        hideSelection = _state2.hideSelection,
+        highlightedDate = _state2.highlightedDate,
+        highlightedRange = _state2.highlightedRange;
 
 
     var monthDate = this.getMonthDate();
@@ -530,6 +546,7 @@ var DateRangePicker = _react2.default.createClass({
       dateStates: dateStates,
       enabledRange: enabledRange,
       firstOfWeek: firstOfWeek,
+      fullDayStates: fullDayStates,
       hideSelection: hideSelection,
       highlightedDate: highlightedDate,
       highlightedRange: highlightedRange,
@@ -555,14 +572,14 @@ var DateRangePicker = _react2.default.createClass({
 
 
   render: function render() {
-    var _props3 = this.props;
-    var PaginationArrowComponent = _props3.paginationArrowComponent;
-    var className = _props3.className;
-    var numberOfCalendars = _props3.numberOfCalendars;
-    var stateDefinitions = _props3.stateDefinitions;
-    var selectedLabel = _props3.selectedLabel;
-    var showLegend = _props3.showLegend;
-    var helpMessage = _props3.helpMessage;
+    var _props3 = this.props,
+        PaginationArrowComponent = _props3.paginationArrowComponent,
+        className = _props3.className,
+        numberOfCalendars = _props3.numberOfCalendars,
+        stateDefinitions = _props3.stateDefinitions,
+        selectedLabel = _props3.selectedLabel,
+        showLegend = _props3.showLegend,
+        helpMessage = _props3.helpMessage;
 
 
     var calendars = _immutable2.default.Range(0, numberOfCalendars).map(this.renderCalendar);

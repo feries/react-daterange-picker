@@ -29,9 +29,9 @@ var Legend = _react2.default.createClass({
   },
 
   render: function render() {
-    var _props = this.props;
-    var selectedLabel = _props.selectedLabel;
-    var stateDefinitions = _props.stateDefinitions;
+    var _props = this.props,
+        selectedLabel = _props.selectedLabel,
+        stateDefinitions = _props.stateDefinitions;
 
     var items = [];
     var name = void 0;

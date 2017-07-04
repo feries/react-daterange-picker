@@ -31,9 +31,9 @@ var CalendarDatePeriod = _react2.default.createClass({
   },
 
   render: function render() {
-    var _props = this.props;
-    var color = _props.color;
-    var period = _props.period;
+    var _props = this.props,
+        color = _props.color,
+        period = _props.period;
 
     var modifiers = _defineProperty({}, period, true);
     var style = void 0;
