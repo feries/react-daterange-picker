@@ -38,6 +38,7 @@ const DateRangePicker = createClass({
     defaultState: PropTypes.string,
     disableNavigation: PropTypes.bool,
     firstOfWeek: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
+    fullDayStates: PropTypes.bool,
     helpMessage: PropTypes.string,
     initialDate: PropTypes.instanceOf(Date),
     initialFromValue: PropTypes.bool,
@@ -75,6 +76,7 @@ const DateRangePicker = createClass({
       className: "",
       numberOfCalendars: 1,
       firstOfWeek: 0,
+      fullDayStates: false,
       disableNavigation: false,
       nextLabel: "",
       previousLabel: "",
@@ -199,6 +201,12 @@ const DateRangePicker = createClass({
     let maxDate = absoluteMaximum;
     let dateCursor = moment(minDate).startOf("day");
 
+    // If states should always include the full day at the edges, we need to
+    // use different boundaries for the "default state" ranges we generate
+    // here. Otherwise the rendering code in CalenderDate cannot know if the
+    // day is at a boundary or not.
+    let shiftDays = this.props.fullDayStates ? 1 : 0;
+
     let defs = Immutable.fromJS(stateDefinitions);
 
     dateStates.forEach(function(s) {
@@ -209,7 +217,10 @@ const DateRangePicker = createClass({
       if (!dateCursor.isSame(start, "day")) {
         actualStates.push({
           state: defaultState,
-          range: moment.range(dateCursor, start)
+          range: moment.range(
+            moment(dateCursor).add(shiftDays, "day"),
+            moment(start).subtract(shiftDays, "day")
+          )
         });
       }
       actualStates.push(s);
@@ -218,7 +229,7 @@ const DateRangePicker = createClass({
 
     actualStates.push({
       state: defaultState,
-      range: moment.range(dateCursor, maxDate)
+      range: moment.range(moment(dateCursor).add(shiftDays, "day"), maxDate)
     });
 
     // sanitize date states
@@ -257,6 +268,16 @@ const DateRangePicker = createClass({
     let blockedRanges = this.nonSelectableStateRanges().map(r =>
       r.get("range")
     );
+    if (this.props.fullDayStates)
+      // range.intersect() ignores when one range ends on the same day
+      // the other begins; for the block to work, we have to extend the
+      // ranges by one day.
+      blockedRanges = blockedRanges.map(r => {
+        r = r.clone();
+        r.start.subtract(1, "day");
+        r.end.add(1, "day");
+        return r;
+      });
     let intersect;
 
     if (forwards) {
@@ -523,6 +544,7 @@ const DateRangePicker = createClass({
       bemBlock,
       bemNamespace,
       firstOfWeek,
+      fullDayStates,
       numberOfCalendars,
       selectionType,
       value,
@@ -578,6 +600,7 @@ const DateRangePicker = createClass({
       dateStates,
       enabledRange,
       firstOfWeek,
+      fullDayStates,
       hideSelection,
       highlightedDate,
       highlightedRange,
