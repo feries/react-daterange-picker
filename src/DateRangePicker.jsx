@@ -125,7 +125,7 @@ const DateRangePicker = createClass({
       });
     } else {
       const updatedState = {
-        selectedStartDate: null,
+        //selectedStartDate: null,
         hideSelection: false,
         dateStates:
           this.state.dateStates &&
@@ -454,7 +454,11 @@ const DateRangePicker = createClass({
       return isVisible(value);
     }
 
-    return isVisible(value.start) || isVisible(value.end);
+    if (value) {
+      return isVisible(value.start) || isVisible(value.end);
+    }
+
+    return true;
   },
 
   canMoveBack() {
