@@ -114,7 +114,7 @@ const DateRangePicker = createClass({
       });
     } else {
       const updatedState = {
-        selectedStartDate: null,
+        //selectedStartDate: null,
         hideSelection: false,
         dateStates: this.state.dateStates && Immutable.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
         enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange,
@@ -415,7 +415,11 @@ const DateRangePicker = createClass({
       return isVisible(value);
     }
 
-    return isVisible(value.start) || isVisible(value.end);
+    if (value) {
+      return isVisible(value.start) || isVisible(value.end);
+    }
+
+    return true;
   },
 
   canMoveBack() {
