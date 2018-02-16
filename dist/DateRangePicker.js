@@ -161,7 +161,7 @@ var DateRangePicker = (0, _createReactClass2.default)({
       });
     } else {
       var updatedState = {
-        selectedStartDate: null,
+        //selectedStartDate: null,
         hideSelection: false,
         dateStates: this.state.dateStates && _immutable2.default.is(this.state.dateStates, nextDateStates) ? this.state.dateStates : nextDateStates,
         enabledRange: this.state.enabledRange && this.state.enabledRange.isSame(nextEnabledRange) ? this.state.enabledRange : nextEnabledRange
@@ -472,7 +472,11 @@ var DateRangePicker = (0, _createReactClass2.default)({
       return isVisible(value);
     }
 
-    return isVisible(value.start) || isVisible(value.end);
+    if (value) {
+      return isVisible(value.start) || isVisible(value.end);
+    }
+
+    return true;
   },
   canMoveBack: function canMoveBack() {
     if (this.getMonthDate().subtract(1, 'days').isBefore(this.state.enabledRange.start)) {
