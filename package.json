@@ -53,10 +53,10 @@
     "url": "https://github.com/onefinestay/react-daterange-picker"
   },
   "peerDependencies": {
-    "moment": "^2.18.1",
-    "moment-range": "^3.0.3",
-    "react": "0.14.x || 15.x.x || 16.x.x",
-    "react-dom": "0.14.x || 15.x.x || 16.x.x"
+    "moment": "latest",
+    "moment-range": "latest",
+    "react": "16.x.x",
+    "react-dom": "16.x.x"
   },
   "dependencies": {
     "calendar": "^0.1.0",
@@ -103,8 +103,8 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-threshold-reporter": "^0.1.15",
     "karma-webpack": "^2.0.2",
-    "moment": "^2.18.1",
-    "moment-range": "^3.0.3",
+    "moment": "latest",
+    "moment-range": "latest",
     "object.assign": "^4.0.4",
     "phantomjs": "^1.9.20",
     "react": "^16.2.0",
