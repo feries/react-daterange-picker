@@ -268,7 +268,7 @@ const DateRangePicker = createClass({
     let blockedRanges = this.nonSelectableStateRanges().map(r =>
       r.get("range")
     );
-    if (this.props.fullDayStates)
+    if (this.props.fullDayStates) {
       // range.intersect() ignores when one range ends on the same day
       // the other begins; for the block to work, we have to extend the
       // ranges by one day.
@@ -278,6 +278,7 @@ const DateRangePicker = createClass({
         r.end.add(1, "day");
         return r;
       });
+    }
     let intersect;
 
     if (forwards) {
